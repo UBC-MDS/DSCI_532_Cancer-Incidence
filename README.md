@@ -10,8 +10,8 @@ Our goal with this project is to create an interactive visualization of cancer i
         - Resource Type = Dataset
         - Format = CSV
         - Language = English
-    - Download the .zip file *65 MB* into the `/data/raw` folder
+    - Download the .zip file __*~65 MB*__ into the `/data/raw` folder
 3. Extract .zip file contents into `/data/raw` folder
-    - *Note: the extracted dataset is ~1 GB*
+    - *Note: the extracted dataset is __*~1 GB*__
 
 ### Folder structure
