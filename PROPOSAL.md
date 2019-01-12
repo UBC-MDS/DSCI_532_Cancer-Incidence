@@ -18,3 +18,12 @@ Daniel works for the Canadian Cancer Society as an epidemiologist. He is interes
 Daniel wants to [explore] a dataset where he can [select] amongst different cancer types the one that he is interested in. He would like to [investigate] how cancer incidence is distributed across the population based on age, gender, and region. Most importantly he would like to visualize how cancer incidence for a particular demographic group has changed over time in order to see if there has been any troubling increases. He would also like to [compare] trends of different cancers, common and rare, as he is very interested in lowering cancer-related mortality in Canada and he believes prevention is the key!
 
 Daniel accesses the "Canadian Cancer Trends" app via the web where he sees a map of Canada with the provinces outlined. There is an overview of the variables to be modified on the left. He can filter demographic variables by using drop down menus to look at cancer incidence trends. To select a particular region he can click on the province on the map, otherwise Canada wide data is displayed. He chooses to look at colorectal cancer incidence in the age group 40-44 and 45-49 across all years and in Canada overall. A time-series graph shows up below the map and he notices that the incidence rate has increased after 2005 by ~25%. He forms a hypothesis that colorectal cancer may be on the rise in younger patients and brings this to the attention of his team to delve deeper into the issue and conduct a follow-up study since there may be confounding variables not assessed.
+
+### Description and Sketch
+
+The app contains a landing page that shows a map of Canada, which allows a user to select provinces to filter the dataset by. On the left panel various variables may be selected by the user from multiple dropdown menus (region, age, gender, and cancer type). Underneath these dropdown menus will be a slider range allowing the user to specify the range of years. This information will be visualized beneath the map in a time-series plot. Users can compare trends over time or among multiple kinds of cancers depending on their selections.
+
+#### Example sketch
+
+![](imgs/app-sketch.png "App Sketch")
+>>>>>>> upstream/master
