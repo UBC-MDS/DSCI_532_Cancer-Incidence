@@ -12,3 +12,16 @@ Cancer is the leading cause of death in Canada, followed by heart disease. It re
 We will be using a [dataset](https://open.canada.ca/data/en/dataset/e667992c-5f2e-425a-8a44-a880930d82d8) that is maintained by Statistics Canada and publicly available. It contains ~4.9 million entries of epidemiologic statistics on the total number and rates of new primary cancers with 95% confidence interval bounds for incidence rates. Each row in the dataset specifies the year (REF_DATE), province (GEO), age group (21 groups), cancer type (58 types) and statistic type (total incidence, incidence rate, lower/upper bound 95% CI). The dataset spans year 1992 - 2015. Since the dataset is close to 1 gigabyte, our tool will visualize data about the top 10 most and least incident cancers to ensure the tool runs smoothly.
 
 ### Usage Scenario
+
+
+
+
+
+
+### Description and Sketch
+
+The app contains a landing page that shows a map of Canada, which allows a user to select provinces to filter the dataset by. On the left panel various variables may be selected by the user from multiple dropdown menus (region, age, gender, and cancer type). Underneath these dropdown menus will be a slider range allowing the user to specify the range of years. This information will be visualized beneath the map in a time-series plot. Users can compare trends over time or among multiple kinds of cancers depending on their selections.
+
+#### Example sketch
+
+![](imgs/app-sketch.png "App Sketch")
