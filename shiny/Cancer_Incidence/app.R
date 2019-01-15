@@ -1,8 +1,8 @@
 library(shiny)
 library(tidyverse)
 
-# setwd("~/UBC/BLOCK 4/DSCI_532/DSCI_532_Cancer-Incidence/shiny/Cancer_Incidence")
-cancer_df <-  read.csv("clean_cancer_data.csv", stringsAsFactors = FALSE)
+# setwd("~/UBC/BLOCK 4/DSCI_532/DSCI_532_Cancer-Incidence/shiny/cancer_incidence")
+cancer_df <-  read_csv("clean_cancer_data.csv")
 
 # temporary filtering to get things working
 cancer_df <- cancer_df %>% 

@@ -14,8 +14,8 @@
 #' 
 #' Usage:
 #' Rscript src/clean_data.R ../data/raw/13100111.csv ../data/clean/clean_cancer_data.csv
-#' ../data/raw/13100111.csv is the path for input data (raw)
-#' ../data/clean/clean_cancer_data.csv is the path for output data (clean)
+#' ../data/13100111.csv is the path for input data (raw)
+#' ../shiny/cancer_incidence/clean_cancer_data.csv is the path for output data (clean)
 
 #' import libraries
 suppressPackageStartupMessages(library(tidyverse))
@@ -27,7 +27,7 @@ output_file <- args[2]
 
 
 #' Un-comment below to run in RStudio while building scripts/app
-# df <- read_csv("../data/raw/13100111.csv")
+# df <- read_csv("../data/13100111.csv")
 
 #' remove rows where the STATUS = ".." which means there is a missing value for incidence, 
 #' do above by filterting to include only STATUS = NA
@@ -139,7 +139,7 @@ main <- function(){
     str_var_to_fct() %>% 
     rename_fct()
   
-  # write clean .csv file
+  # write clean .csv file into shiny folder
   write_csv(clean_df, output_file)
 }
 
