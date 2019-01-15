@@ -1,5 +1,5 @@
 #' clean_data.R
-#' Group: lab2- 
+#' Group: lab2 - group 6
 #' Authors: Rachel K. Riggs, Constantin Shuster
 #' Date: January 14, 2018
 #' 
