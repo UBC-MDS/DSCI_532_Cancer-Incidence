@@ -1,13 +1,12 @@
 library(shiny)
 library(tidyverse)
 
-# setwd("~/UBC/BLOCK 4/DSCI_532/DSCI_532_Cancer-Incidence/shiny/cancer_incidence")
-cancer_df <-  read_csv("clean_cancer_data.csv")
+cancer_df <- read.csv("clean_cancer_data.csv", stringsAsFactors = FALSE)
+# cancer_df <- read_csv("clean_cancer_data.csv")
 
 # temporary filtering to get things working
 cancer_df <- cancer_df %>% 
-  filter(stat_type == "Cancer incidence",
-         UOM == "Rate per 100,000 population")
+  filter(stat_type == "incidence_rate")
 
 ##### USER INTERFACE
 ui <- fluidPage(
@@ -29,14 +28,8 @@ ui <- fluidPage(
       uiOutput(outputId = "ageOutput"),
       
       # gender
-      selectInput(inputId = "genderInput",
-                  label = "Choose gender:",
-                  choices = list("Both sexes",
-                                 "Males",
-                                 "Females"
-                                 ),
-                  selected = "Both sexes"
-                  ),
+      # this variable is specified in the server -- see below
+      uiOutput(outputId = "genderOutput"),
       
       # cancer type
       # this variable is specified in the server -- see below
@@ -50,7 +43,7 @@ ui <- fluidPage(
                   max = 2015,
                   value = c(1992,2015),
                   step = 1,
-                  dragRange = TRUE, # lets user drage the selected range
+                  dragRange = TRUE, # lets user drag the selected range
                   sep = ""  # gets rid of commas in number formatting
                   )
       
@@ -58,10 +51,7 @@ ui <- fluidPage(
       
    # MAIN PANEL
       mainPanel(
-        
         plotOutput(outputId = "time_plot")
-         # plotOutput("distPlot")
-        
       ) # end of mainPanel
    
    ) # end of sidebarLayout
@@ -71,6 +61,44 @@ ui <- fluidPage(
 
 ##### SERVER
 server <- function(input, output) {
+  
+  # the following code allows the app to automatically choose all of the unique
+  # region names without having to specify them explicitly in the UI
+  output$regionOutput <- renderUI({
+    selectInput(inputId = "regionInput", 
+                label = "Choose region:",
+                sort(unique(cancer_df$region)),
+                selected = "Canada"
+    )
+  })
+  
+  # allow the app to automatically choose the unique age groups
+  output$ageOutput <- renderUI({
+    selectInput(inputId = "ageInput",
+                label = "Choose age group:",
+                unique(cancer_df$age),
+                selected = "All"
+    )
+  })
+  
+  # allow the app to automatically choose the unique cancer types
+  output$typeOutput <- renderUI({
+    selectInput(inputId = "typeInput",
+                label = "Choose cancer type:",
+                sort(unique(cancer_df$cancer_type)),
+                selected = "All cancers"
+    )
+  })
+  
+  # allows the app to automatically choose the unique gender groups
+  output$genderOutput <- renderUI({
+    selectInput(inputId = "genderInput",
+                label = "Choose gender:",
+                sort(unique(cancer_df$sex)),
+                selected = "Both"
+    )
+  })
+
   
   # create a filtered object to avoid copying & pasting this code in multiple places
   filtered <- reactive({
@@ -96,39 +124,11 @@ server <- function(input, output) {
              year <= input$yearInput[2]
       )
   })
-  
-  # the following code allows the app to automatically choose all of the unique
-  # region names without having to specify them explicitly in the UI
-  output$regionOutput <- renderUI({
-    selectInput(inputId = "regionInput", 
-                label = "Choose region:",
-                sort(unique(cancer_df$region)),
-                selected = "Canada"
-                )
-  })
-  
-  # the following code allows the app to automatically choose all of the unique
-  # age groups without having to specify them explicitly in the UI
-  output$ageOutput <- renderUI({
-    selectInput(inputId = "ageInput",
-                label = "Choose age group:",
-                unique(cancer_df$age),
-                selected = "Total, all ages"
-                )
-  })
-  
-  # the following code allows the app to automatically choose all of the unique
-  # cancer types without having to specify them explicitly in the UI
-  output$typeOutput <- renderUI({
-    selectInput(inputId = "typeInput",
-                label = "Choose cancer type:",
-                sort(unique(cancer_df$cancer_type)),
-                selected = "Total, all primary sites of cancer"
-                )
-  })
+
   
   # make the plot based on the filtered data
   output$time_plot <- renderPlot({
+    
     # prevent the user from seeing temporary errors while the app initializes
     if (is.null(filtered())) {
       return()
