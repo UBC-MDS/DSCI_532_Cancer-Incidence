@@ -6,13 +6,12 @@ cancer_df <-  read_csv("clean_cancer_data.csv")
 
 # temporary filtering to get things working
 cancer_df <- cancer_df %>% 
-  filter(stat_type == "Cancer incidence",
-         UOM == "Rate per 100,000 population")
+  filter(stat_type == "Cancer incidence")
 
 ##### USER INTERFACE
 ui <- fluidPage(
 
-  titlePanel("Cancer Incidence in Canada",
+  titlePanel("Cancer Incidence in Canada 1992-2015",
              windowTitle = "Cancer Incidence in Canada"),
    
   # SIDEBAR 
