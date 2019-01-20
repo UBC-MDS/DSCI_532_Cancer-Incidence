@@ -1,5 +1,6 @@
 library(shiny)
 library(tidyverse)
+library(leaflet)
 
 cancer_df <- read.csv("clean_cancer_data.csv", stringsAsFactors = FALSE)
 # cancer_df <- read_csv("clean_cancer_data.csv")
@@ -17,41 +18,40 @@ ui <- fluidPage(
   # SIDEBAR 
   sidebarLayout(
     sidebarPanel(
-      # dropdown menus 
       
-      # region
-      # this variable is specified in the server -- see below
-      uiOutput(outputId = "regionOutput"),
-      
-      # age
-      # this variable is specified in the server -- see below
-      uiOutput(outputId = "ageOutput"),
-      
-      # gender
-      # this variable is specified in the server -- see below
-      uiOutput(outputId = "genderOutput"),
-      
-      # cancer type
-      # this variable is specified in the server -- see below
-      uiOutput(outputId = "typeOutput"),
-      
-      # slider
-      # year range
-      sliderInput(inputId = "yearInput",
-                  label = "Year range:",
-                  min = 1992,
-                  max = 2015,
-                  value = c(1992,2015),
-                  step = 1,
-                  dragRange = TRUE, # lets user drag the selected range
-                  sep = ""  # gets rid of commas in number formatting
-                  )
-      
+      # Time series sidebar panel
+      conditionalPanel(condition="input.tabselected==1",
+                       # variables in sidebar panel: region, age, gender, cancer type, slider (years)
+                       uiOutput(outputId = "regionOutput"),
+                       uiOutput(outputId = "ageOutput"),
+                       uiOutput(outputId = "genderOutput"),
+                       uiOutput(outputId = "typeOutput"),
+                       sliderInput(inputId = "yearInput",
+                                   label = "Year range:",
+                                   min = 1992,
+                                   max = 2015,
+                                   value = c(1992,2015),
+                                   step = 1,
+                                   dragRange = TRUE, # lets user drag the selected range
+                                   sep = ""  # gets rid of commas in number formatting
+                                   )
+                       ),
+      # trend sidebar panel
+      conditionalPanel(condition="input.tabselected==2",
+                       uiOutput(outputId = "varOutput"),
+                       uiOutput(outputId = "typeOutput2")
+                       )
     ),  # end of sidebarPanel
       
    # MAIN PANEL
       mainPanel(
-        plotOutput(outputId = "time_plot")
+        tabsetPanel(
+          tabPanel("Time series", value = 1, 
+                   leafletOutput(outputId = "map",height = 400),
+                   plotOutput(outputId = "time_plot")),
+          tabPanel("Trend", value = 2, plotOutput(outputId = "trend_plot")),
+          id = "tabselected"
+        )
       ) # end of mainPanel
    
    ) # end of sidebarLayout
@@ -61,6 +61,12 @@ ui <- fluidPage(
 
 ##### SERVER
 server <- function(input, output) {
+  
+  output$map <- renderLeaflet({
+    leaflet() %>%
+      addTiles() %>%
+      setView(lng=260 , lat =60, zoom=3)
+  })
   
   # the following code allows the app to automatically choose all of the unique
   # region names without having to specify them explicitly in the UI
@@ -99,6 +105,24 @@ server <- function(input, output) {
     )
   })
 
+  #### TREND GRAPH SIDE PANEL #####
+  # select trend variable
+  output$varOutput <- renderUI({
+    selectInput(inputId = "varInput",
+                label = "Choose variable:",
+                choices = list("Age", "Gender", "Region")
+                )
+  })
+  
+  # select cancer type
+  output$typeOutput2 <- renderUI({
+    selectInput(inputId = "typeInput2",
+                label = "Choose cancer type:",
+                sort(unique(cancer_df$cancer_type)),
+                selected = "All cancers"
+                )
+  })
+  
   
   # create a filtered object to avoid copying & pasting this code in multiple places
   filtered <- reactive({
@@ -135,10 +159,37 @@ server <- function(input, output) {
     }
     
     ggplot(filtered(), aes(x = year, y = VALUE)) +
-      geom_line() +
-      geom_point()
+      geom_line(aes(color = cancer_type)) +
+      geom_point(aes(color = cancer_type)) +
+      theme_bw() +
+      theme(panel.grid = element_blank()) +
+      ylab("Cancer incidence per 100,000") +
+      xlab("")
 
   })
+  
+  # make TREND plot
+  output$trend_plot <- renderPlot({
+    
+    # prevent the user from seeing temporary errors while the app initializes
+    if (is.null(filtered())) {
+      return()
+    }
+    
+    age_df <- cancer_df %>% 
+      filter(region == "BC",
+             sex == "Both",
+             year == 2000,
+             cancer_type == input$typeInput2)
+    
+    ggplot(age_df, aes(x = age, y = VALUE)) +
+      geom_line() +
+      geom_point() +
+      xlab("Age") +
+      ylab("Cancer incidence per 100,000")
+  })
+  
+
 
 } ##### END OF SERVER
 
