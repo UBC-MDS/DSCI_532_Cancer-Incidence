@@ -17,7 +17,7 @@ Our goal with this project is to create an interactive visualization of cancer i
     - If user has 'Make' installed:
          - Navigate to the root of this project using the commmand line and run: `make all`
     - If user doesn't have 'Make' installed:
-         - Navigate to the root of this project using the command line and run: 
+         - Navigate to the root of this project using the command line and run:
          `Rscript src/clean_data.R data/13100111.csv shiny/Cancer_Incidence/clean_cancer_data.csv`
     - `clean_cancer_data` should appear in `DSCI_532_Cancer-Incidence/shiny/cancer_incidence/`
 5. To remove `clean_cancer_data`:
@@ -25,3 +25,9 @@ Our goal with this project is to create an interactive visualization of cancer i
         - Navigate to the root of this project using the commmand line and run: `make clean`
     - If user doesn't have 'Make' installed:
         - Delete file manually from `DSCI_532_Cancer-Incidence/shiny/cancer_incidence/`
+
+### Shiny web application
+
+Currently deployed at: https://rachelkriggs.shinyapps.io/Cancer_Incidence/
+
+However, still work-in-progress!
