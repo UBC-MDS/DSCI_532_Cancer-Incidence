@@ -159,13 +159,12 @@ server <- function(input, output) {
     }
     
     ggplot(filtered(), aes(x = year, y = VALUE)) +
-      geom_line(aes(color = cancer_type)) +
-      geom_point(aes(color = cancer_type)) +
+      geom_line(aes(color = "red")) +
+      geom_point(aes(color = "red")) +
       theme_bw() +
-      theme(panel.grid = element_blank()) +
+      theme(panel.grid = element_blank(), legend.position = "none") +
       ylab("Cancer incidence per 100,000") +
-      xlab("")
-
+      xlab("Year")
   })
   
   # make TREND plot
