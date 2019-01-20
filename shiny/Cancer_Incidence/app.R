@@ -1,5 +1,6 @@
 library(shiny)
 library(tidyverse)
+library(leaflet)
 
 cancer_df <- read.csv("clean_cancer_data.csv", stringsAsFactors = FALSE)
 # cancer_df <- read_csv("clean_cancer_data.csv")
@@ -45,7 +46,9 @@ ui <- fluidPage(
    # MAIN PANEL
       mainPanel(
         tabsetPanel(
-          tabPanel("Time series", value = 1, plotOutput(outputId = "time_plot")),
+          tabPanel("Time series", value = 1, 
+                   leafletOutput(outputId = "map",height = 400),
+                   plotOutput(outputId = "time_plot")),
           tabPanel("Trend", value = 2, plotOutput(outputId = "trend_plot")),
           id = "tabselected"
         )
@@ -58,6 +61,12 @@ ui <- fluidPage(
 
 ##### SERVER
 server <- function(input, output) {
+  
+  output$map <- renderLeaflet({
+    leaflet() %>%
+      addTiles() %>%
+      setView(lng=260 , lat =60, zoom=3)
+  })
   
   # the following code allows the app to automatically choose all of the unique
   # region names without having to specify them explicitly in the UI
@@ -150,13 +159,12 @@ server <- function(input, output) {
     }
     
     ggplot(filtered(), aes(x = year, y = VALUE)) +
-      geom_line() +
-      geom_point() +
+      geom_line(aes(color = "red")) +
+      geom_point(aes(color = "red")) +
       theme_bw() +
-      theme(panel.grid = element_blank()) +
+      theme(panel.grid = element_blank(), legend.position = "none") +
       ylab("Cancer incidence per 100,000") +
       xlab("Year")
-
   })
   
   # make TREND plot
