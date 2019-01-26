@@ -30,4 +30,10 @@ Our goal with this project is to create an interactive visualization of cancer i
 
 Currently deployed at: https://rachelkriggs.shinyapps.io/Cancer_Incidence/
 
-However, still work-in-progress!
+### Feedback given to other groups for Milestone 3:
+
+https://github.com/UBC-MDS/Vancouver-Property-Value-Analysis/issues/18
+
+https://github.com/UBC-MDS/DSCI_532_Wine_Betty_Milos/issues/17
+
+https://github.com/UBC-MDS/Crime_Data/issues/19
