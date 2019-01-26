@@ -23,6 +23,7 @@ Rachel's experience of being a "fly-on-the-wall":
 
 Coste's experience of being a "fly-on-the-wall":
 *What did you learn from your experience being a "fly-on-the-wall". Was this useful? Why or why not?*
+*I learned that its a real good way of viewing how others would use the app - without being able to explain its really amazing to see how others interpret your intentions and where the real pain points are. I think its a great trouble shooting and feedback method for app creation and I found it very useful. For example when users were testing out app and I was a "fly-on-the-wall* it was quite quick to realize for me that they didn't understand the tabs well as they kept asking "why is this here, what does it do?"*
 
 
 ### Reflection on how the project has changed since Milestone 2, and why.
