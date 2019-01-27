@@ -27,24 +27,29 @@ output_file <- args[2]
 
 
 #' Un-comment below to run in RStudio while building scripts/app
-# df <- read_csv("../data/13100111.csv")
+#' df <- read_csv("../../data/13100111.csv")
 
 #' remove rows where the STATUS = ".." which means there is a missing value for incidence, 
 #' do above by filterting to include only STATUS = NA
+#' also remove 'Age group, not stated' because NO INCIDENCE RATE FOR THIS GROUP!!!!
 #' remove columns that are empty or not needed
 clean_df <- function(df){
   new_df <- df %>%
     filter(is.na(STATUS)) %>% 
+    filter(`Age group` != "Age group, not stated") %>% 
     select( -DGUID, -UOM_ID, -SCALAR_ID, -SCALAR_FACTOR, - VECTOR, -COORDINATE, - STATUS, -SYMBOL, -TERMINATED, -DECIMALS, -UOM) %>% 
     rename(year = REF_DATE, 
            region = GEO, 
            age = `Age group`, 
            sex = Sex, 
            cancer_type = `Primary types of cancer (ICD-O-3)`,
-           stat_type = Characteristics)
+           stat_type = Characteristics) 
   
   return(new_df)
+    
 }
+
+####need to remove age == unknown and 90+ where incidence is 0 for everything?
 
 # make categorical variables into factors
 str_var_to_fct <- function(df){
@@ -74,7 +79,7 @@ rename_fct <- function(df){
                                     "All cancers" = "Total, all primary sites of cancer",
                                     "AML" = "Acute myeloid leukemia",
                                     "CML" = "Chronic myeloid leukemia",
-                                    "ALL" = "Acute lymphocytic leukemia",
+                                    "ALL - leukemia" = "Acute lymphocytic leukemia",
                                     "CLL" = "Chronic lymphocytic leukemia",
                                     "Other" = "Other, ill-defined and unknown sites"))
   
@@ -107,8 +112,7 @@ rename_fct <- function(df){
                             "75-79" = "75 to 79 years",
                             "80-84" = "80 to 84 years",
                             "85-89" = "85 to 89 years",
-                            "90+" = "90 years and over",
-                            "Unknown" = "Age group, not stated"))
+                            "90+" = "90 years and over"))
   
   # rename levels of region
   new_df <- new_df %>% 
@@ -131,13 +135,24 @@ rename_fct <- function(df){
   return(new_df)
 }
 
+#' spread the stat_type column to decrease size of file (easier to store numbers than strings)
+#' this will also make it easier to add error bars
+#' we learned that 90+ from YT and NU don't have incidence rate thus you get NA after spread - remove these
+spread_df <- function(df){
+  new_df <- df %>% 
+    spread(key = stat_type, value = VALUE) %>% 
+    filter(!is.na(incidence_rate))
+  
+  return(new_df)
+}
 
 main <- function(){
   # Read raw data and call cleaning functions
   clean_df <- suppressMessages(read_csv(input_file)) %>% 
     clean_df() %>% 
     str_var_to_fct() %>% 
-    rename_fct()
+    rename_fct() %>% 
+    spread_df
   
   # write clean .csv file into shiny folder
   write_csv(clean_df, output_file)
