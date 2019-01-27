@@ -11,11 +11,11 @@
 # to clean:
 # make clean
 
-all : shiny/cancer_incidence/clean_cancer_data.csv
+all : shiny/clean_cancer_data.csv
 
 # load in data, clean it, and output clean data
-shiny/cancer_incidence/clean_cancer_data.csv : src/clean_data.R data/13100111.csv
-	Rscript src/clean_data.R data/13100111.csv shiny/Cancer_Incidence/clean_cancer_data.csv
+shiny/clean_cancer_data.csv : src/clean_data.R data/13100111.csv
+	Rscript src/clean_data.R data/13100111.csv shiny/clean_cancer_data.csv
 
 clean :
-	rm -f shiny/cancer_incidence/clean_cancer_data.csv
+	rm -f shiny/clean_cancer_data.csv
