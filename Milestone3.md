@@ -29,8 +29,4 @@ Coste's experience of being a "fly-on-the-wall":
 
 As stated above, the map functionality was difficult to implement and we are running into a few technical difficulties. Our main challenge has been to combine our data with geo-spatial data - we have found a few tutorials but still are running into trouble. Since we have a few days from today and the final submission deadline we created a tab called map with the map as a placeholder for now! If we get to finishing it then great, but if not we will have to let this go.
 
-<<<<<<< HEAD
 Because we lost this aspect of a map, we implemented some additional tabs to explore our variables visually. We broke the 'Trend' tab into 'Cancer rate by age group' and we will be creating a 'Cancer rate by gender' tab time permitting. For the Cancer rate by gender tab, we have it working so far and we chose the 'year' drop down menu to only show every 5 years - since trends don't change too much year to year. We would actually like to plot maybe 2-3 plots in this section of the different years so its easier to compare for the user - but this function would be a nice to have and not a must.
-=======
-Because we lost this aspect of a map, we implemented some additional tabs to explore our variables visually. We broke the 'Trend' tab into 'Cancer rate by age group' and we will be creating a 'Cancer rate by gender' tab.
->>>>>>> upstream/master
