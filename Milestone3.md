@@ -29,4 +29,4 @@ Coste's experience of being a "fly-on-the-wall":
 
 As stated above, the map functionality was too difficult and time consuming to implement on this project, especially given the heavy workload of other courses in Block 4. While there are many online tutorials on this subject, what we found was that a lot of those examples use map data that already contains the data to be shown on said map. Combining geo-spatial data with our data (which only included a categorical variable for regions) was often skipped over in these learning resources. With more time we could have figured this out (it's clearly possible!), but hard choices had to be made because of the deadlines.
 
-Because we lost this aspect of a map, we implemented some additional tabs to explore our variables visually. We broke the 'Trend' tab into 'Cancer rate by age group' and 'Cancer rate by gender'.
+Because we lost this aspect of a map, we implemented some additional tabs to explore our variables visually. We broke the 'Trend' tab into 'Cancer rate by age group' and we will be creating a 'Cancer rate by gender' tab.
