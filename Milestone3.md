@@ -27,6 +27,10 @@ Coste's experience of being a "fly-on-the-wall":
 
 ### Reflection on how the project has changed since Milestone 2, and why.
 
-As stated above, the map functionality was too difficult and time consuming to implement on this project, especially given the heavy workload of other courses in Block 4. While there are many online tutorials on this subject, what we found was that a lot of those examples use map data that already contains the data to be shown on said map. Combining geo-spatial data with our data (which only included a categorical variable for regions) was often skipped over in these learning resources. With more time we could have figured this out (it's clearly possible!), but hard choices had to be made because of the deadlines.
+As stated above, the map functionality was difficult to implement and we are running into a few technical difficulties. Our main challenge has been to combine our data with geo-spatial data - we have found a few tutorials but still are running into trouble. Since we have a few days from today and the final submission deadline we created a tab called map with the map as a placeholder for now! If we get to finishing it then great, but if not we will have to let this go.
 
+<<<<<<< HEAD
+Because we lost this aspect of a map, we implemented some additional tabs to explore our variables visually. We broke the 'Trend' tab into 'Cancer rate by age group' and we will be creating a 'Cancer rate by gender' tab time permitting. For the Cancer rate by gender tab, we have it working so far and we chose the 'year' drop down menu to only show every 5 years - since trends don't change too much year to year. We would actually like to plot maybe 2-3 plots in this section of the different years so its easier to compare for the user - but this function would be a nice to have and not a must.
+=======
 Because we lost this aspect of a map, we implemented some additional tabs to explore our variables visually. We broke the 'Trend' tab into 'Cancer rate by age group' and we will be creating a 'Cancer rate by gender' tab.
+>>>>>>> upstream/master
