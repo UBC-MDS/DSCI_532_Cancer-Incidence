@@ -2,31 +2,65 @@ library(shiny)
 library(tidyverse)
 library(leaflet)
 
-cancer_df <- read.csv("clean_cancer_data.csv", stringsAsFactors = FALSE)
-# cancer_df <- read_csv("clean_cancer_data.csv")
+# read the clean data file
+cancer_df <- read_csv("clean_cancer_data.csv", col_types = "iccccdddd")
 
-# temporary filtering to get things working
-cancer_df <- cancer_df %>% 
-  filter(stat_type == "incidence_rate")
+# factor columns with characters 
+cancer_df %>% 
+  mutate(region = as.factor(region)) %>% 
+  mutate(age = as.factor(age)) %>%
+  mutate(sex = as.factor(sex)) %>% 
+  mutate(cancer_type = as.factor(cancer_type))
+
+# refactor ordering of age factors so age group 5-9 is after 0-4
+cancer_df$age <- cancer_df$age %>% fct_relevel("0-4", "5-9")
 
 ##### USER INTERFACE
 ui <- fluidPage(
 
-  titlePanel("Cancer Incidence in Canada",
+  titlePanel("Cancer Incidence in Canada (1992-2015)",
              windowTitle = "Cancer Incidence in Canada"),
    
   # SIDEBAR 
   sidebarLayout(
     sidebarPanel(
       
-      # Time series sidebar panel
+      # TIME SERIES SIDEBAR PANEL
+      # input variables in this panel are identified by '.._time'
       conditionalPanel(condition="input.tabselected==1",
                        # variables in sidebar panel: region, age, gender, cancer type, slider (years)
-                       uiOutput(outputId = "regionOutput"),
-                       uiOutput(outputId = "ageOutput"),
-                       uiOutput(outputId = "genderOutput"),
-                       uiOutput(outputId = "typeOutput"),
-                       sliderInput(inputId = "yearInput",
+                       selectInput(inputId = "region_time", 
+                                   label = "Choose region:",
+                                   sort(unique(cancer_df$region)),
+                                   selected = "Canada"),
+                       
+                      
+                       selectInput(inputId = "age_time",
+                                   label = "Choose age group:",
+                                   unique(cancer_df$age),
+                                   selected = "All"),
+                       
+                       selectInput(inputId = "gender_time",
+                                   label = "Choose gender:",
+                                   sort(unique(cancer_df$sex)),
+                                   selected = "Both"),
+                       
+                       selectInput(inputId = "type1_time",
+                                   label = "Choose cancer type 1:",
+                                   sort(unique(cancer_df$cancer_type)),
+                                   selected = "All cancers"),
+                       
+                       selectInput(inputId = "type2_time",
+                                   label = "Choose cancer type 2:",
+                                   sort(unique(cancer_df$cancer_type)),
+                                   selected = "All cancers"),
+                       
+                       selectInput(inputId = "type3_time",
+                                   label = "Choose cancer type 3:",
+                                   sort(unique(cancer_df$cancer_type)),
+                                   selected = "All cancers"),
+                       
+                       sliderInput(inputId = "year_time",
                                    label = "Year range:",
                                    min = 1992,
                                    max = 2015,
@@ -35,160 +69,125 @@ ui <- fluidPage(
                                    dragRange = TRUE, # lets user drag the selected range
                                    sep = ""  # gets rid of commas in number formatting
                                    )
-                       ),
-      # trend sidebar panel
+                       ), #end of conditional panel for time series
+      
+      # AGE SIDEBAR PANEL
+      # input variables in this panel are identified by '.._age'
       conditionalPanel(condition="input.tabselected==2",
-                       uiOutput(outputId = "varOutput"),
-                       uiOutput(outputId = "typeOutput2")
-                       )
-    ),  # end of sidebarPanel
+                       
+                       selectInput(inputId = "region_age", 
+                                   label = "Choose region:",
+                                   sort(unique(cancer_df$region)),
+                                   selected = "Canada"),
+                       
+                       selectInput(inputId = "gender_age",
+                                   label = "Choose gender:",
+                                   sort(unique(cancer_df$sex)),
+                                   selected = "Both"),
+                       
+                       selectInput(inputId = "type_age",
+                                   label = "Choose cancer type:",
+                                   sort(unique(cancer_df$cancer_type)),
+                                   selected = "All cancers"),
+                       
+                       selectInput(inputId = "year_age",
+                                   label = "Choose year:",
+                                   choices = list(1995, 2000, 2005, 2010, 2015),
+                                   selected = 2000)
+                       
+                       ),# end of conditional panel for age trend
+      
+      # MAP SIDEBAR PANEL
+      # input variables in this panel are identified by ".._map"
+      conditionalPanel(condition="input.tabselected==3",
+                       sliderInput(inputId = "year_map",
+                                   label = "Year range:",
+                                   min = 1995,
+                                   max = 2015,
+                                   value = c(1992,2015),
+                                   step = 5,
+                                   dragRange = TRUE, # lets user drag the selected range
+                                   sep = ""  # gets rid of commas in number formatting
+                                   )
+                       ) #end of conditional panel for map
+      
+      ),  # end of sidebarPanel
       
    # MAIN PANEL
       mainPanel(
         tabsetPanel(
-          tabPanel("Time series", value = 1, 
-                   leafletOutput(outputId = "map",height = 400),
-                   plotOutput(outputId = "time_plot")),
-          tabPanel("Trend", value = 2, plotOutput(outputId = "trend_plot")),
+          tabPanel("Cancer rate over time", value = 1, plotOutput(outputId = "time_plot")),
+          tabPanel("Cancer rate by age group", value = 2, plotOutput(outputId = "age_plot")),
+          tabPanel("Cancer Incidence Map", value = 3, leafletOutput(outputId = "map",height = 400)),
           id = "tabselected"
-        )
+        ) #end of tabsetPanel
       ) # end of mainPanel
-   
    ) # end of sidebarLayout
-)  ##### END OF UI
+)##### END OF UI
 
 
 
 ##### SERVER
 server <- function(input, output) {
+
+  # create a filtered df for time series to avoid copying/paste
+  time_filter <- reactive({
+    
+    # what allows the user to filter the data
+    cancer_df %>% 
+      filter(region == input$region_time,
+             age == input$age_time,
+             sex == input$gender_time,
+             cancer_type == input$type1_time |
+               cancer_type == input$type2_time |
+               cancer_type == input$type3_time,
+             year >= input$year_time[1],
+             year <= input$year_time[2]
+      )
+  })
   
+  # create a filtered df for age trend to avoid copy/paste
+  age_filter <- reactive({
+    
+    # what allows the user to filter the data
+    cancer_df %>% 
+      filter(region == input$region_age,
+             sex == input$gender_age,
+             cancer_type == input$type_age,
+             year == input$year_age
+      )
+  })
+
+  
+  # make TIME SERIES plot
+  output$time_plot <- renderPlot({
+
+    ggplot(time_filter(), aes(x = year, y = incidence_rate)) +
+      geom_line(aes(color = cancer_type), size = 1) +
+      geom_point(aes(color = cancer_type), size = 2) +
+      theme_bw() +
+      scale_x_continuous(breaks = seq(min(time_filter()$year), max(time_filter()$year), by = 1)) +
+      labs(color = "cancer type",
+           x = "Year",
+           y = "Cancer incidence per 100,000")
+  })
+  
+  # make AGE plot
+  output$age_plot <- renderPlot({
+    
+    ggplot(age_filter(), aes(x = age, y = incidence_rate)) +
+      geom_col() +
+      theme_classic() +
+      xlab("Age group") +
+      ylab("Cancer incidence per 100,000")
+  })
+  
+  # make MAP
   output$map <- renderLeaflet({
     leaflet() %>%
       addTiles() %>%
       setView(lng=260 , lat =60, zoom=3)
   })
-  
-  # the following code allows the app to automatically choose all of the unique
-  # region names without having to specify them explicitly in the UI
-  output$regionOutput <- renderUI({
-    selectInput(inputId = "regionInput", 
-                label = "Choose region:",
-                sort(unique(cancer_df$region)),
-                selected = "Canada"
-    )
-  })
-  
-  # allow the app to automatically choose the unique age groups
-  output$ageOutput <- renderUI({
-    selectInput(inputId = "ageInput",
-                label = "Choose age group:",
-                unique(cancer_df$age),
-                selected = "All"
-    )
-  })
-  
-  # allow the app to automatically choose the unique cancer types
-  output$typeOutput <- renderUI({
-    selectInput(inputId = "typeInput",
-                label = "Choose cancer type:",
-                sort(unique(cancer_df$cancer_type)),
-                selected = "All cancers"
-    )
-  })
-  
-  # allows the app to automatically choose the unique gender groups
-  output$genderOutput <- renderUI({
-    selectInput(inputId = "genderInput",
-                label = "Choose gender:",
-                sort(unique(cancer_df$sex)),
-                selected = "Both"
-    )
-  })
-
-  #### TREND GRAPH SIDE PANEL #####
-  # select trend variable
-  output$varOutput <- renderUI({
-    selectInput(inputId = "varInput",
-                label = "Choose variable:",
-                choices = list("Age", "Gender", "Region")
-                )
-  })
-  
-  # select cancer type
-  output$typeOutput2 <- renderUI({
-    selectInput(inputId = "typeInput2",
-                label = "Choose cancer type:",
-                sort(unique(cancer_df$cancer_type)),
-                selected = "All cancers"
-                )
-  })
-  
-  
-  # create a filtered object to avoid copying & pasting this code in multiple places
-  filtered <- reactive({
-    
-    # prevent the user from seeing temporary errors while the app initializes
-    if (is.null(input$regionInput)) {
-      return(NULL)
-    }
-    if (is.null(input$ageInput)) {
-      return(NULL)
-    }
-    if (is.null(input$typeInput)) {
-      return(NULL)
-    }
-    
-    # what allows the user to filter the data
-    cancer_df %>% 
-      filter(region == input$regionInput,
-             age == input$ageInput,
-             sex == input$genderInput,
-             cancer_type == input$typeInput,
-             year >= input$yearInput[1],
-             year <= input$yearInput[2]
-      )
-  })
-
-  
-  # make the plot based on the filtered data
-  output$time_plot <- renderPlot({
-    
-    # prevent the user from seeing temporary errors while the app initializes
-    if (is.null(filtered())) {
-      return()
-    }
-    
-    ggplot(filtered(), aes(x = year, y = VALUE)) +
-      geom_line(aes(color = "red")) +
-      geom_point(aes(color = "red")) +
-      theme_bw() +
-      theme(panel.grid = element_blank(), legend.position = "none") +
-      ylab("Cancer incidence per 100,000") +
-      xlab("Year")
-  })
-  
-  # make TREND plot
-  output$trend_plot <- renderPlot({
-    
-    # prevent the user from seeing temporary errors while the app initializes
-    if (is.null(filtered())) {
-      return()
-    }
-    
-    age_df <- cancer_df %>% 
-      filter(region == "BC",
-             sex == "Both",
-             year == 2000,
-             cancer_type == input$typeInput2)
-    
-    ggplot(age_df, aes(x = age, y = VALUE)) +
-      geom_line() +
-      geom_point() +
-      xlab("Age") +
-      ylab("Cancer incidence per 100,000")
-  })
-  
-
 
 } ##### END OF SERVER
 
