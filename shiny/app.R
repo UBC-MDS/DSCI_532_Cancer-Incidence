@@ -15,6 +15,27 @@ cancer_df %>%
 # refactor ordering of age factors so age group 5-9 is after 0-4
 cancer_df$age <- cancer_df$age %>% fct_relevel("0-4", "5-9")
 
+# read in geo spatial data
+canada_spatial <- geojson_read("canada_provinces.geojson", what = "sp")
+
+# rename province abbreviations for the map so they match with geo data so they can be merged
+cancer_df_map <- cancer_df %>% 
+  mutate(region = fct_recode(region,
+                             "British Columbia" = "BC",
+                             "Newfoundland and Labrador" = "NL",
+                             "Northwest Territories" = "NWT",
+                             "Nunavut" = "NU",
+                             "Saskatchewan" = "SK",
+                             "Quebec" = "QC",
+                             "Alberta" = "AB",
+                             "Manitoba" = "MB",
+                             "Nova Scotia" = "NS",
+                             "Ontario" = "ON",
+                             "New Brunswick" = "NB",
+                             "Prince Edward Island" = "PEI",
+                             "Yukon" = "YT")) %>%
+  data.frame
+
 ##### USER INTERFACE
 ui <- fluidPage(
 
@@ -37,7 +58,7 @@ ui <- fluidPage(
                       
                        selectInput(inputId = "age_time",
                                    label = "Choose age group:",
-                                   unique(cancer_df$age),
+                                   sort(unique(cancer_df$age)),
                                    selected = "All"),
                        
                        selectInput(inputId = "gender_time",
@@ -100,15 +121,28 @@ ui <- fluidPage(
       # MAP SIDEBAR PANEL
       # input variables in this panel are identified by ".._map"
       conditionalPanel(condition="input.tabselected==3",
-                       sliderInput(inputId = "year_map",
-                                   label = "Year range:",
-                                   min = 1995,
-                                   max = 2015,
-                                   value = c(1992,2015),
-                                   step = 5,
-                                   dragRange = TRUE, # lets user drag the selected range
-                                   sep = ""  # gets rid of commas in number formatting
-                                   )
+                       
+                       # variables in sidebar panel: age, gender, cancer type, slider (years)
+                       selectInput(inputId = "age_map",
+                                   label = "Choose age group:",
+                                   sort(unique(cancer_df$age)),
+                                   selected = "All"),
+                       
+                       selectInput(inputId = "gender_map",
+                                   label = "Choose gender:",
+                                   sort(unique(cancer_df$sex)),
+                                   selected = "Both"),
+                       
+                       selectInput(inputId = "type_map",
+                                   label = "Choose cancer type:",
+                                   sort(unique(cancer_df$cancer_type)),
+                                   selected = "All cancers"),
+                       
+                       selectInput(inputId = "year_map",
+                                   label = "Choose year:",
+                                   choices = list(1995, 2000, 2005, 2010, 2015),
+                                   selected = 2000)
+
                        ) #end of conditional panel for map
       
       ),  # end of sidebarPanel
@@ -157,6 +191,18 @@ server <- function(input, output) {
              year == input$year_age
       )
   })
+  
+  # create a filtered df for map
+  map_filter <- reactive({
+    
+    # what allows the user to filter the data
+    map_data <- cancer_df_map %>% 
+      filter(age == input$age_map,
+             sex == input$gender_map,
+             cancer_type == input$type_map,
+             year == input$year_age)
+    sp::merge(canada_spatial, map_data, by.x = "name", by.y = "region", duplicateGeoms=TRUE)
+  })
 
   
   # make TIME SERIES plot
@@ -184,9 +230,33 @@ server <- function(input, output) {
   
   # make MAP
   output$map <- renderLeaflet({
+    data_map <- map_filter()
+    
+    bins <- c(0, 10, 20, 50, 100, 200, 500, 1000, Inf)
+    labels <- sprintf(
+      "<strong>%s</strong><br/>%g cancer incidence per\n100,000 people",
+      data_map$name, data_map$incidence_rate
+    ) %>% lapply(htmltools::HTML)
+
     leaflet() %>%
-      addTiles() %>%
-      setView(lng=260 , lat =60, zoom=3)
+      setView(-95, 60,  zoom = 3) %>% 
+      addTiles() %>% 
+      addPolygons(data = data_map,
+                  color = "white",
+                  weight = 1,
+                  opacity = 1,
+                  fillOpacity = 0.8,
+                  fillColor = ~colorBin("OrRd", incidence_rate, bins = bins)(incidence_rate),
+                  highlightOptions = highlightOptions(color = "white", 
+                                                      weight = 2.5,
+                                                      bringToFront = TRUE),
+                  layerId = ~name,
+                  label = labels
+      ) %>% 
+      addLegend(position = "topright", 
+                pal = colorBin("OrRd", data_map$incidence_rate, bins = bins), 
+                value = data_map$incidence_rate, 
+                title = paste("Cancer Incidence per 100,000"))
   })
 
 } ##### END OF SERVER
