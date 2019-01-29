@@ -1,6 +1,7 @@
 library(shiny)
 library(tidyverse)
 library(leaflet)
+library(geojsonio)
 
 # read the clean data file
 cancer_df <- read_csv("clean_cancer_data.csv", col_types = "iccccdddd")
@@ -39,7 +40,7 @@ cancer_df_map <- cancer_df %>%
 ##### USER INTERFACE
 ui <- fluidPage(
 
-  titlePanel("Cancer Incidence in Canada (1992-2015)",
+  titlePanel("How has cancer incidence in Canada changed over the years?",
              windowTitle = "Cancer Incidence in Canada"),
    
   # SIDEBAR 
@@ -69,17 +70,17 @@ ui <- fluidPage(
                        selectInput(inputId = "type1_time",
                                    label = "Choose cancer type 1:",
                                    sort(unique(cancer_df$cancer_type)),
-                                   selected = "All cancers"),
+                                   selected = "Thyroid"),
                        
                        selectInput(inputId = "type2_time",
                                    label = "Choose cancer type 2:",
                                    sort(unique(cancer_df$cancer_type)),
-                                   selected = "All cancers"),
+                                   selected = "Brain"),
                        
                        selectInput(inputId = "type3_time",
                                    label = "Choose cancer type 3:",
                                    sort(unique(cancer_df$cancer_type)),
-                                   selected = "All cancers"),
+                                   selected = "Pancreas"),
                        
                        sliderInput(inputId = "year_time",
                                    label = "Year range:",
@@ -99,7 +100,7 @@ ui <- fluidPage(
                        selectInput(inputId = "region_age", 
                                    label = "Choose region:",
                                    sort(unique(cancer_df$region)),
-                                   selected = "Canada"),
+                                   selected = "Canada excl. QC"),
                        
                        selectInput(inputId = "gender_age",
                                    label = "Choose gender:",
@@ -109,12 +110,12 @@ ui <- fluidPage(
                        selectInput(inputId = "type_age",
                                    label = "Choose cancer type:",
                                    sort(unique(cancer_df$cancer_type)),
-                                   selected = "All cancers"),
+                                   selected = "All cancers")#,
                        
-                       selectInput(inputId = "year_age",
-                                   label = "Choose year:",
-                                   choices = list(1995, 2000, 2005, 2010, 2015),
-                                   selected = 2000)
+                       #selectInput(inputId = "year_age",
+                        #           label = "Choose year:",
+                        #           choices = list(1995, 2000, 2005, 2010, 2015),
+                        #           selected = 2000)
                        
                        ),# end of conditional panel for age trend
       
@@ -188,8 +189,7 @@ server <- function(input, output) {
       filter(region == input$region_age,
              sex == input$gender_age,
              cancer_type == input$type_age,
-             year == input$year_age
-      )
+             year %in% c(1995, 2015))
   })
   
   # create a filtered df for map
@@ -200,7 +200,7 @@ server <- function(input, output) {
       filter(age == input$age_map,
              sex == input$gender_map,
              cancer_type == input$type_map,
-             year == input$year_age)
+             year == input$year_map)
     sp::merge(canada_spatial, map_data, by.x = "name", by.y = "region", duplicateGeoms=TRUE)
   })
 
@@ -211,18 +211,25 @@ server <- function(input, output) {
     ggplot(time_filter(), aes(x = year, y = incidence_rate)) +
       geom_line(aes(color = cancer_type), size = 1) +
       geom_point(aes(color = cancer_type), size = 2) +
+      geom_ribbon(aes(fill = cancer_type, 
+                      ymin = time_filter()$`95_ci_lo_rate`, 
+                      ymax = time_filter()$`95_ci_hi_rate`,
+                      alpha = 0.05), 
+                  show.legend = FALSE)+
       theme_bw() +
       scale_x_continuous(breaks = seq(min(time_filter()$year), max(time_filter()$year), by = 1)) +
+      scale_y_continuous(limits = c(0, NA))+
       labs(color = "cancer type",
            x = "Year",
-           y = "Cancer incidence per 100,000")
+           y = "Cancer incidence per 100,000",
+           caption = "95% confidence intervals are displayed by the shaded area")
   })
   
   # make AGE plot
   output$age_plot <- renderPlot({
     
     ggplot(age_filter(), aes(x = age, y = incidence_rate)) +
-      geom_col() +
+      geom_col(aes(fill = year)) +
       theme_classic() +
       xlab("Age group") +
       ylab("Cancer incidence per 100,000")
