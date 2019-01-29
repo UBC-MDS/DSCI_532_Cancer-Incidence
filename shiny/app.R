@@ -1,7 +1,6 @@
 library(shiny)
 library(tidyverse)
 library(leaflet)
-library(geojsonio)
 
 # read the clean data file
 cancer_df <- read_csv("clean_cancer_data.csv", col_types = "iccccdddd")
@@ -228,11 +227,12 @@ server <- function(input, output) {
   # make AGE plot
   output$age_plot <- renderPlot({
     
-    ggplot(age_filter(), aes(x = age, y = incidence_rate)) +
-      geom_col(aes(fill = year)) +
+    ggplot(age_filter()) +
+      geom_col(aes(x = age, y = incidence_rate, fill = factor(year)), alpha = 0.5, position = "identity") +
       theme_classic() +
-      xlab("Age group") +
-      ylab("Cancer incidence per 100,000")
+      scale_fill_manual(values = c("1995" = "#CC6600", "2015" = "#3399FF"), name = "Year") +
+      labs(x ="Age group",
+           y = "Cancer incidence per 100,000")
   })
   
   # make MAP
