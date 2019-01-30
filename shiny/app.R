@@ -158,7 +158,7 @@ ui <- navbarPage(
                       p("Cancer incidence rates in this dataset refer to the amount of new primary malignant cancer cases 
                         on an annual basis per 100,000 people."),
                       p("Data was not available for Quebec after 2010, 
-                        thus for comparison purposes cancer incidencer rates for Canada excluding Quebec were created for all years."),
+                        thus for comparison purposes cancer incidence rates for Canada excluding Quebec were created for all years."),
                       p("In 2014, Ontario implemented a new reporting system - the Ontario Cancer Registry.
                         The new enhanced system permitted the identification of cancers that perviously were unrecorded.
                         It also permitted counting multiple primary sites. This impacted data from year 2010 onwards.")
@@ -262,8 +262,15 @@ server <- function(input, output) {
       data_map$name, data_map$incidence_rate
     ) %>% lapply(htmltools::HTML)
 
-    leaflet() %>%
-      setView(-95, 60,  zoom = 3) %>% 
+    leaflet(options = leafletOptions(boxZoom = FALSE,
+                                     zoomControl = FALSE,
+                                     doubleClickZoom = FALSE, 
+                                     touchZoom = FALSE, 
+                                     dragging = FALSE, 
+                                     scrollWheelZoom = FALSE,
+                                     keyboard = FALSE,
+                                     tap = FALSE)) %>%
+      setView(-95, 60, zoom = 3) %>% 
       addTiles() %>% 
       addPolygons(data = data_map,
                   color = "white",
