@@ -12,7 +12,7 @@ Our goal with this project is to create an interactive visualization of cancer i
         - Language = English
     - Download the .zip file __*~65 MB*__ into the `/data/raw` folder
 3. Extract .zip file contents into `/data` folder
-    - *Note: the extracted dataset is __*~1 GB*__
+    - *Note: the extracted dataset is* __*~1 GB*__
 4. Create the `clean_cancer_data` file to be used by Shiny app:
     - If user has 'Make' installed:
          - Navigate to the root of this project using the commmand line and run: `make all`
@@ -29,11 +29,3 @@ Our goal with this project is to create an interactive visualization of cancer i
 ### Shiny web application
 
 Currently deployed at: https://rachelkriggs.shinyapps.io/Cancer_Incidence/
-
-### Feedback given to other groups for Milestone 3:
-
-https://github.com/UBC-MDS/Vancouver-Property-Value-Analysis/issues/18
-
-https://github.com/UBC-MDS/DSCI_532_Wine_Betty_Milos/issues/17
-
-https://github.com/UBC-MDS/Crime_Data/issues/19
