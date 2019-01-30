@@ -28,4 +28,4 @@ Our goal with this project is to create an interactive visualization of cancer i
 
 ### Shiny web application
 
-Currently deployed at: https://rachelkriggs.shinyapps.io/Cancer_Incidence/
+Currently deployed at: https://rachelkriggs.shinyapps.io/shiny/
