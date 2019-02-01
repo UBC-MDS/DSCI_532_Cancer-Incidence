@@ -10,7 +10,7 @@ Our goal with this project is to create an interactive visualization of cancer i
         - Resource Type = Dataset
         - Format = CSV
         - Language = English
-    - Download the .zip file __*~65 MB*__ into the `/data/raw` folder
+    - Download the .zip file __*~65 MB*__ into the `/data` folder
 3. Extract .zip file contents into `/data` folder
     - *Note: the extracted dataset is* __*~1 GB*__
 4. Create the `clean_cancer_data` file to be used by Shiny app:
@@ -18,13 +18,13 @@ Our goal with this project is to create an interactive visualization of cancer i
          - Navigate to the root of this project using the commmand line and run: `make all`
     - If user doesn't have 'Make' installed:
          - Navigate to the root of this project using the command line and run:
-         `Rscript src/clean_data.R data/13100111.csv shiny/Cancer_Incidence/clean_cancer_data.csv`
-    - `clean_cancer_data` should appear in `DSCI_532_Cancer-Incidence/shiny/cancer_incidence/`
+         `Rscript src/clean_data.R data/13100111.csv shiny/clean_cancer_data.csv`
+    - `clean_cancer_data` should appear in `DSCI_532_Cancer-Incidence/shiny/`
 5. To remove `clean_cancer_data`:
     - If user has 'Make' installed:
         - Navigate to the root of this project using the commmand line and run: `make clean`
     - If user doesn't have 'Make' installed:
-        - Delete file manually from `DSCI_532_Cancer-Incidence/shiny/cancer_incidence/`
+        - Delete file manually from `DSCI_532_Cancer-Incidence/shiny`
 
 ### Shiny web application
 
